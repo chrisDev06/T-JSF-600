@@ -26,22 +26,29 @@
     -->
     <title>React App</title>
     <script src="/socket.io/socket.io.js"></script>
-    <script>
-      const socket = io();
-    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
 
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
+    <form id="form">
+      <input type="text" id="input">
+      <label for="input"></label>
+      <input type="submit">
+    </form>
+    <script defer>
+      const socket = io();
 
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
+      const form = document.getElementById('form');
+      const input = document.getElementById('input');
+
+      if (form != null){form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (input.value) {
+          socket.emit('chat message', input.value);
+          input.value = '';
+        }
+      });}
+    </script>
   </body>
 </html>
