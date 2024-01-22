@@ -35,20 +35,56 @@
       <input type="text" id="input">
       <label for="input"></label>
       <input type="submit">
+      <button id="button">Disconnect</button>
     </form>
+    <p id="p"></p>
     <script defer>
       const socket = io();
 
+      socket.emit('helloServeur', 'connection client -> serveur');
+      socket.on('helloClient', (arg) => {
+      console.log(arg); 
+      });
+      
+      socket.on("message", (data) => {
+        console.log(data)
+        appendMessages(data)
+      })
+      
+      socket.on("outputMessage", (data) => {
+        console.log(data)
+        appendMessages(data)
+      })
+ 
       const form = document.getElementById('form');
       const input = document.getElementById('input');
+      
 
-      if (form != null){form.addEventListener('submit', (e) => {
+      form.addEventListener('submit', (e) => {
         e.preventDefault();
         if (input.value) {
-          socket.emit('chat message', input.value);
+          socket.emit('chatmessage', input.value);
+          let p = document.createElement("p")
+          p.innerText = input.value ;
+          console.log(p)
+          document.getElementById("p").appendChild(p)
+
           input.value = '';
         }
-      });}
+      }); 
+
+      const toggleButton = document.getElementById('button');
+
+      toggleButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (socket.connected) {
+          toggleButton.innerText = 'Connect';
+          socket.disconnect();
+        } else {
+          toggleButton.innerText = 'Disconnect';
+          socket.connect();
+        }
+      });
     </script>
   </body>
 </html>
