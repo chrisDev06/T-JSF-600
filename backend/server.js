@@ -1,6 +1,6 @@
 const mongoose = require("mongoose")
 const Msg = require('./models/message');  
-const mongoDB = "mongodb+srv://maximeparisi:4nloXstxn8UHz1L7@cluster0.bbwhcld.mongodb.net/?retryWrites=true&w=majority";
+const mongoDB = "mongodb://localhost:27017";
 mongoose.connect(mongoDB, {useNewUrlParser: true}).then(()=> {
   console.log("connected")
 } )
@@ -38,7 +38,10 @@ io.on("connection", (socket)=> {
   socket.on("disconnect", ()=> {
     console.log("user disconnected")
   })
-  socket.on("chatmessage", msg => {
+  socket.on("forum", (value)=> {
+    socket.join(value)
+  })
+  socket.on("chatmessage", (msg) => {
     const message = new Msg({msg}) 
     message.save().then(()=> {
       io.emit("message", msg)

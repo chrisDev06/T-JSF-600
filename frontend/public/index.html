@@ -14,16 +14,6 @@
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
     -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
-
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
     <title>React App</title>
     <script src="/socket.io/socket.io.js"></script>
   </head>
@@ -32,14 +22,18 @@
     <div id="root"></div>
 
     <form id="form">
+      <input type="text" id="forum">
+      <label for="forum"></label>
       <input type="text" id="input">
       <label for="input"></label>
       <input type="submit">
       <button id="button">Disconnect</button>
     </form>
+
     <p id="p"></p>
+
     <script defer>
-      const socket = io();
+      const socket = io(); 
 
       socket.emit('helloServeur', 'connection client -> serveur');
       socket.on('helloClient', (arg) => {
@@ -47,28 +41,39 @@
       });
       
       socket.on("message", (data) => {
+        let p = document.createElement("p")
+        p.innerText = data ;
+        console.log(p)
+        document.querySelector("body").appendChild(p)
+
         console.log(data)
         appendMessages(data)
-      })
+        })
       
       socket.on("outputMessage", (data) => {
+        let p = document.createElement("p")
+        p.innerText = data ;
+        console.log(p)
+        document.querySelector("body").appendChild(p)
+
         console.log(data)
         appendMessages(data)
       })
  
       const form = document.getElementById('form');
       const input = document.getElementById('input');
+      const forum = document.getElementById('forum');
+
+      
       
 
       form.addEventListener('submit', (e) => {
         e.preventDefault();
+        if(forum.value){
+          socket.emit("forum", forum.value)
+        }
         if (input.value) {
           socket.emit('chatmessage', input.value);
-          let p = document.createElement("p")
-          p.innerText = input.value ;
-          console.log(p)
-          document.getElementById("p").appendChild(p)
-
           input.value = '';
         }
       }); 
