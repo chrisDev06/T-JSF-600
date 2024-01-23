@@ -1,5 +1,6 @@
 const mongoose = require("mongoose")
-const Msg = require('./models/message');  
+const Msg = require('./models/message'); 
+const Usr = require('./models/user') 
 const mongoDB = "mongodb+srv://maximeparisi:4nloXstxn8UHz1L7@cluster0.bbwhcld.mongodb.net/?retryWrites=true&w=majority";
 mongoose.connect(mongoDB).then(()=> {
   console.log(" db connected")
@@ -31,24 +32,36 @@ io.on('connection', (socket) => {
 
 io.on("connection", (socket)=> {
   Msg.find().then(result => {
-    socket.emit("outputMessage", result.msg)  
+    socket.emit("outputMessage", result)  
+  })
+  Usr.find().then(result => {
+    socket.emit("outputUser", result)
   })
 
   console.log("a user connected");
-  socket.emit("message", "hello")
+  socket.emit("message", "hello")    // a faire sauté
   socket.on("disconnect", ()=> {
     console.log("user disconnected")
   })
 
-  socket.on("forum", (value)=> {
-    socket.join(value)
-  })
+  // socket.on("forum", (value)=> {
+  //   socket.join(value)
+  // })
 
   socket.on("chatmessage", (msg) => {
     const message = new Msg({msg}) 
     message.save().then(()=> {
       io.emit("message", msg)
     })
+    
+  }) 
+
+  socket.on("user", (usr) => {
+    const user = new Usr({usr}) 
+    user.save().then(()=> {
+      io.emit("newuser", usr)
+    })
+    
   }) 
 
 })

@@ -14,63 +14,45 @@
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
     -->
-    <title>React App</title>
+    <title>MSN2</title>
     <script src="/socket.io/socket.io.js"></script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
 
+
+    <p id="p"></p>
+
     <form id="form">
-      <input type="text" id="forum">
-      <label for="forum"></label>
+      <input type="text" id="user">
+        <label for="user"></label>
       <input type="text" id="input">
-      <label for="input"></label>
+        <label for="input"></label>
       <input type="submit">
       <button id="button">Disconnect</button>
     </form>
 
-    <p id="p"></p>
+    
 
     <script defer>
       const socket = io(); 
 
-      socket.emit('helloServeur', 'connection client -> serveur');
-      socket.on('helloClient', (arg) => {
-      console.log(arg); 
-      });
-      
-      socket.on("message", (data) => {
-        let p = document.createElement("p")
-        p.innerText = data ;
-        console.log(p)
-        document.querySelector("body").appendChild(p)
-
-        console.log(data)
-        appendMessages(data)
-        })
-      
-      socket.on("outputMessage", (data) => {
-        let p = document.createElement("p")
-        p.innerText = data ;
-        console.log(p)
-        document.querySelector("body").appendChild(p)
-
-        console.log(data)
-        appendMessages(data)
+      const welcomeUser = document.getElementById('p');  //affichage user
+      socket.on("newuser", (data) => {
+          welcomeUser.innerText = data
+          document.querySelector("body").appendChild(welcomeUser)
       })
- 
+
       const form = document.getElementById('form');
       const input = document.getElementById('input');
-      const forum = document.getElementById('forum');
-
-      
-      
+      const user = document.getElementById('user');
 
       form.addEventListener('submit', (e) => {
         e.preventDefault();
-        if(forum.value){
-          socket.emit("forum", forum.value)
+        if(user.value){
+          socket.emit("user", user.value)
+          user.value = "";
         }
         if (input.value) {
           socket.emit('chatmessage', input.value);
@@ -78,8 +60,35 @@
         }
       }); 
 
-      const toggleButton = document.getElementById('button');
+      socket.emit('helloServeur', 'connection client -> serveur');  // dialogue serveur-client
+      socket.on('helloClient', (arg) => {
+      console.log(arg); 
+      });
+      
+      socket.on("message", (data) => {
+        let p = document.createElement("p")
+        p.innerText = data ;
+        document.querySelector("body").appendChild(p)
+        // appendMessages(data)
+        })
+      
+      socket.on("outputMessage", (data) => {     // affichage des messages dans le chat
 
+        if(data.length>0){
+          data.forEach(message => {
+            let p = document.createElement("p")
+            p.innerText = message.msg ;
+            console.log(p)
+            document.querySelector("body").appendChild(p)
+
+            console.log(message.msg)
+            // appendMessages(message.msg)
+          });
+        }
+      })
+      
+
+      const toggleButton = document.getElementById('button');   // button deconnection
       toggleButton.addEventListener('click', (e) => {
         e.preventDefault();
         if (socket.connected) {
