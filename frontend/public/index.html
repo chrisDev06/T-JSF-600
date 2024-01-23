@@ -35,15 +35,10 @@
       <button id="button">Disconnect</button>
     </form>
 
-    <object type="audio/mpeg" width="1" height="1" data="img/cri3.m4a">
-      <param name="filename" value="cri2.mp3" />
-      <param name="autostart" value="true" />
-  </object>
-
     <script defer>
       const socket = io(); 
 
-      const welcomeUser = document.getElementById('p');  //affichage user
+      const welcomeUser = document.getElementById('p');  //affichage user (ne marche plus car inutile)
       socket.on("newuser", (data) => {
           welcomeUser.innerText = data
           document.querySelector("body").appendChild(welcomeUser)
@@ -54,13 +49,6 @@
       const input = document.getElementById('input');
       const user = document.getElementById('user');
       const submit = document.getElementById('submit');
-
-      import sound from 'yeah.mp3'
-
-      submit.onclick=  () => {
-        let audio = new Audio(sound);
-        audio.play();
-      }
 
       form.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -104,6 +92,12 @@
             // appendMessages(message.msg)
           });
         }
+      })
+
+      const create = document.createElement("button")
+
+      const button = onclick( () => {
+        socket.emit("createChat", "create")
       })
       
 

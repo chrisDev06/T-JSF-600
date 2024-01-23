@@ -20,8 +20,6 @@ const PORT = process.env.PORT || 3001;
 
 const { join } = require('node:path'); 
 
-
-
 io.on('connection', (socket) => {
   socket.on('helloServeur', (arg) => {        // connection client -> serveur
     console.log(arg);
