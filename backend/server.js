@@ -31,7 +31,7 @@ io.on('connection', (socket) => {
 
 io.on("connection", (socket)=> {
   Msg.find().then(result => {
-    socket.emit("outputMessage", result)  
+    socket.emit("outputMessage", result.msg)  
   })
 
   console.log("a user connected");
