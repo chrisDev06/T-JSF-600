@@ -1,6 +1,5 @@
 const mongoose = require("mongoose")
-const Msg = require('./models/message'); 
-const Usr = require('./models/user') 
+const Msg = require('../models/message'); 
 const mongoDB = "mongodb+srv://maximeparisi:4nloXstxn8UHz1L7@cluster0.bbwhcld.mongodb.net/?retryWrites=true&w=majority";
 mongoose.connect(mongoDB).then(()=> {
   console.log(" db connected")
@@ -21,8 +20,17 @@ const PORT = process.env.PORT || 3001;
 const { join } = require('node:path');
 
 io.on("connection", (socket)=> {
+  console.log("testa")
     socket.on("createChat", () => {
-        
+      
+        let MongoClient = require("mongodb").MongoClient
+        MongoClient.connect(mongoDB, function (client) {
+          let db = client.db("mydb")
+          db.createCollection("chat", function () {
+            const message = new Msg({"tata":any})
+            client.close()
+          })
+        })
     })
 })
 

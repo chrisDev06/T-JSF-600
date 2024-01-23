@@ -1,10 +1,19 @@
-const mongoose = require("mongoose")
-const Msg = require('./models/message'); 
-const Usr = require('./models/user') 
+const MongoClient = require("mongodb").MongoClient
 const mongoDB = "mongodb+srv://maximeparisi:4nloXstxn8UHz1L7@cluster0.bbwhcld.mongodb.net/?retryWrites=true&w=majority";
-mongoose.connect(mongoDB).then(()=> {
-  console.log(" db connected")
-} )
+
+console.log("test")
+MongoClient.connect(mongoDB, function(err, db) {
+  console.log("ttit")
+  var dbo = db.db("mydb");
+  dbo.createCollection("users", function(err, res) {
+    if (err) throw err;
+    db.close();
+  });
+  dbo.createCollection("chats", function(err, res) {
+    if (err) throw err;
+    db.close();
+  });
+});
 
 const express = require('express');
 const http = require('http');
@@ -20,6 +29,7 @@ const PORT = process.env.PORT || 3001;
 
 const { join } = require('node:path'); 
 
+
 io.on('connection', (socket) => {
   socket.on('helloServeur', (arg) => {        // connection client -> serveur
     console.log(arg);
@@ -29,34 +39,54 @@ io.on('connection', (socket) => {
   socket.emit('helloClient', 'connection serveur -> client');  // co serveur-> client
 });
 
-
 io.on("connection", (socket)=> {
-  let room = 0
-  Msg.find().then(result => {
-    io.to(room).emit("outputMessage", result)  
-  })
+  let room = "general"
+    MongoClient.connect(mongoDB, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      dbo.collection(room).findOne({}, function(err, result) {
+        if (err) throw err;
+        socket.emit("outputmessage", result)
+        console.log(result.name);
+        db.close();
+      });
+    });
 
   console.log("a user connected");
   socket.on("disconnect", ()=> {
     console.log("user disconnected")
   })
 
-  
   socket.on("chat", (cht) => {
     socket.join(cht)
     room = cht
   })
 
   socket.on("chatmessage", (msg) => {
-    const message = new Msg({msg}) 
-    message.save().then(()=> {
-      io.to(room).emit("message", msg)
-      console.log(room)
-    })
+    MongoClient.connect(mongoDB, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      var myobj = { message: msg};
+      dbo.collection("chats").insertOne(myobj, function(err, res) {
+        if (err) throw err;
+        console.log("1 document inserted");
+        db.close();
+      });
+      socket.emit("message", msg)
+    });
   })
 
   socket.on("user", (usr) => {
-    const user = new Usr({usr})    
+    MongoClient.connect(mongoDB, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      var myobj = { user: usr };
+      dbo.collection("users").insertOne(myobj, function(err, res) {
+        if (err) throw err;
+        console.log("1 document inserted");
+        db.close();
+      });
+    }); 
   }) 
 })
 

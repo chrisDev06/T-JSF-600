@@ -79,7 +79,7 @@
         })
       
       socket.on("outputMessage", (data) => {     // affichage des messages dans le chat
-
+        console.log("tititit")
         if(data.length>0){
           data.forEach(message => {
             let p = document.createElement("p")
@@ -94,11 +94,12 @@
         }
       })
 
-      const create = document.createElement("button")
+      let create = document.createElement("button")
+      document.querySelector("body").appendChild(create)
 
-      const button = onclick( () => {
+      create.onclick = () => {
         socket.emit("createChat", "create")
-      })
+      }
       
 
       const toggleButton = document.getElementById('button');   // button deconnection
