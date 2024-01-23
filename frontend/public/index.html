@@ -25,6 +25,8 @@
     <p id="p"></p>
 
     <form id="form">
+      <input type="text" id="chat">
+        <label for="chat"></label> 
       <input type="text" id="user">
         <label for="user"></label>
       <input type="text" id="input">
@@ -44,12 +46,17 @@
           document.querySelector("body").appendChild(welcomeUser)
       })
 
+      const chat = document.getElementById('chat');
       const form = document.getElementById('form');
       const input = document.getElementById('input');
       const user = document.getElementById('user');
 
       form.addEventListener('submit', (e) => {
         e.preventDefault();
+        if(chat.value){
+          socket.emit("chat", chat.value)
+          chat.value = "";
+        }
         if(user.value){
           socket.emit("user", user.value)
           user.value = "";

@@ -20,6 +20,8 @@ const PORT = process.env.PORT || 3001;
 
 const { join } = require('node:path'); 
 
+
+
 io.on('connection', (socket) => {
   socket.on('helloServeur', (arg) => {        // connection client -> serveur
     console.log(arg);
@@ -34,36 +36,29 @@ io.on("connection", (socket)=> {
   Msg.find().then(result => {
     socket.emit("outputMessage", result)  
   })
-  Usr.find().then(result => {
-    socket.emit("outputUser", result)
-  })
 
   console.log("a user connected");
-  socket.emit("message", "hello")    // a faire sauté
   socket.on("disconnect", ()=> {
     console.log("user disconnected")
   })
 
-  // socket.on("forum", (value)=> {
-  //   socket.join(value)
-  // })
+  let room = 0
+  socket.on("chat", (cht) => {
+    socket.join(cht)
+    room = cht
+  })
 
   socket.on("chatmessage", (msg) => {
     const message = new Msg({msg}) 
     message.save().then(()=> {
-      io.emit("message", msg)
+      io.to(room).emit("message", msg)
+      console.log(room)
     })
-    
-  }) 
+  })
 
   socket.on("user", (usr) => {
-    const user = new Usr({usr}) 
-    user.save().then(()=> {
-      io.emit("newuser", usr)
-    })
-    
+    const user = new Usr({usr})    
   }) 
-
 })
 
 app.get('/', (req, res) => {
