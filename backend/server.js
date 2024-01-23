@@ -31,8 +31,9 @@ io.on('connection', (socket) => {
 
 
 io.on("connection", (socket)=> {
+  let room = 0
   Msg.find().then(result => {
-    socket.emit("outputMessage", result)  
+    io.to(room).emit("outputMessage", result)  
   })
 
   console.log("a user connected");
@@ -40,7 +41,7 @@ io.on("connection", (socket)=> {
     console.log("user disconnected")
   })
 
-  let room = 0
+  
   socket.on("chat", (cht) => {
     socket.join(cht)
     room = cht
