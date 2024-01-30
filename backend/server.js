@@ -1,6 +1,6 @@
 const mongoose = require("mongoose")
-const Msg = require("./models/message")
-const Usr = require('./models/user') 
+const {msgSchema} = require("./models/message")
+let Usr = require('./models/user') 
 const mongoDB = "mongodb+srv://maximeparisi:4nloXstxn8UHz1L7@cluster0.bbwhcld.mongodb.net/?retryWrites=true&w=majority";
 mongoose.connect(mongoDB).then(()=> {
   console.log(" db connected")
@@ -32,26 +32,30 @@ io.on('connection', (socket) => {
   })
 });
 
+let room = "o"
+
+let Msg = mongoose.model(`${room}`, msgSchema);
+
 
 io.on("connection", (socket)=> {
 
-
-  let room = "generale"
-  
-  
-  socket.on("chat", (cht) => {
-    socket.join(cht)
-    room = cht
-    module.exports = {
-      room: room
-  }
-  })
-
   Msg.find().then(result => {
-    socket.emit("outputMessage", result)  
+    socket.emit("allMessages", result)  
+  })
+  
+  socket.on("selectChat", (cht) => {
+    room = cht
+    Msg = mongoose.model(`${room}s`, msgSchema)
+    Msg.find().then(result => {
+      console.log("ttttt")
+      socket.emit("allMessages", result)  
+    })
+    socket.join(cht)
+    
   })
 
   socket.on("chatmessage", (msg) => {
+    Msg = mongoose.model(`${room}s`, msgSchema)
     const message = new Msg({msg}) 
     message.save().then(()=> {
       io.to(room).emit("message", msg)

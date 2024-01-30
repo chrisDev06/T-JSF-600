@@ -1,6 +1,5 @@
 const mongoose= require("mongoose")
 const { Server } = require('socket.io');
-const { room } = require("../server")
 
 
 let msgSchema = new mongoose.Schema({
@@ -9,9 +8,14 @@ let msgSchema = new mongoose.Schema({
         require: true
     }
     })
-    
-    let Msg = mongoose.model(`${room}`, msgSchema);
-    console.log(room)
-    module.exports= Msg;
+
+    module.exports=
+     {
+        msgSchema: msgSchema
+    }
+
+
+
+
 
     
