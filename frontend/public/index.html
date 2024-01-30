@@ -55,6 +55,7 @@
         e.preventDefault();
         if(chat.value){
           socket.emit("chat", chat.value)
+          console.log("chat= "+ chat.value)
           chat.value = "";
         }
         if(user.value){

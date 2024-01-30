@@ -1,10 +1,17 @@
 const mongoose= require("mongoose")
-const msgSchema = new mongoose.Schema({
+const { Server } = require('socket.io');
+const { room } = require("../server")
+
+
+let msgSchema = new mongoose.Schema({
     msg:{
         type:String,
         require: true
     }
-})
+    })
+    
+    let Msg = mongoose.model(`${room}`, msgSchema);
+    console.log(room)
+    module.exports= Msg;
 
-const Msg = mongoose.model("msg", msgSchema);
-module.exports= Msg;
+    
