@@ -33,6 +33,8 @@
         <label for="input"></label>
       <input type="submit">
       <button id="button">Disconnect</button>
+      <button id="updateButton">Update</button>
+      <button id="deleteButton">Delete</button>
     </form>
 
     
@@ -50,6 +52,8 @@
       const form = document.getElementById('form');
       const input = document.getElementById('input');
       const user = document.getElementById('user');
+      const updateButton = document.getElementById("updateButton")
+      const deleteButton = document.getElementById("deleteButton")
 
       form.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -68,6 +72,18 @@
         }
       }); 
 
+      updateButton.addEventListener("click", ()=> {
+            console.log("up")
+            socket.emit("updateChat", chat.value)
+            chat.value= ''
+          })
+      
+      deleteButton.addEventListener("click", ()=> {
+        console.log("delete")
+        socket.emit("deleteChat", chat.value)
+        chat.value= ''
+      })
+
       socket.emit('helloServeur', 'connection client -> serveur');  // dialogue serveur-client
       socket.on('helloClient', (arg) => {
       console.log(arg); 
@@ -81,7 +97,6 @@
         })
       
       socket.on("allMessages", (data) => {     // affichage des messages dans le chat
-        console.log("tttt")
         if(data.length>0){
           data.forEach(message => {
             let p = document.createElement("p")

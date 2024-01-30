@@ -6,6 +6,8 @@ mongoose.connect(mongoDB).then(()=> {
   console.log(" db connected")
 } )
 
+const MongoClient = require('mongodb').MongoClient
+
 const express = require('express');
 const http = require('http');
 const { createServer } = require('node:http');
@@ -16,7 +18,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
   connectionStateRecovery: {}
 });
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 
 const { join } = require('node:path'); 
 
@@ -32,7 +34,7 @@ io.on('connection', (socket) => {
   })
 });
 
-let room = "o"
+let room = "generale"
 
 let Msg = mongoose.model(`${room}`, msgSchema);
 
@@ -47,11 +49,33 @@ io.on("connection", (socket)=> {
     room = cht
     Msg = mongoose.model(`${room}s`, msgSchema)
     Msg.find().then(result => {
-      console.log("ttttt")
       socket.emit("allMessages", result)  
     })
-    socket.join(cht)
-    
+    socket.join(cht) 
+  })
+
+  socket.on("updateChat", (up) => {
+    room = up
+    MongoClient.connect(mongoDB).then((client) => {
+
+      const connect = client.db("test");
+      const collection = connect.collection(`${room}s`);
+      collection.rename(`${up}s`); 
+      console.log(room) 
+      
+    })
+  })
+
+  socket.on("deleteChat", (del) => {
+    room = "generale"
+    MongoClient.connect(mongoDB).then((client) => {
+
+      const connect = client.db("test");
+      const collection = connect.collection(`${del}s`);
+      collection.drop(); 
+      console.log(room) 
+      
+    })
   })
 
   socket.on("chatmessage", (msg) => {
