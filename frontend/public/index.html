@@ -102,7 +102,7 @@
             console.log("test")
         })
       
-      socket.on("allMessages", (data) => {     // affichage des messages dans le chat
+      socket.on("allMessages", (data) => {    
         if(data.length>0){
           data.forEach(message => {
             let p = document.createElement("p")
@@ -111,7 +111,7 @@
             document.querySelector("body").appendChild(p)
 
             console.log(message.msg)
-            // appendMessages(message.msg)
+           
           });
         }
       })

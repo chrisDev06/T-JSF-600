@@ -109,9 +109,11 @@ io.on("connection", (socket)=> {
       fetch('http://localhost:3001/refresh', { 
         method: 'GET'
       }).then(response => {
+          // console.log(response)
           if (!response.ok) {
               throw new Error('Erreur lors de la requête');
           }
+
           return response.text();
       })
 
@@ -126,11 +128,9 @@ io.on("connection", (socket)=> {
   }) 
 })
 
-app.get('/refresh', (req, res) => {
-  res.redirect("http://localhost:3001");
- 
+app.get('/refresh', function(req, res) {
   console.log("dd")
-
+  return res.redirect("back");
 });
 
 app.get('/', (req, res) => {
