@@ -112,7 +112,6 @@ io.on("connection", (socket)=> {
           if (!response.ok) {
               throw new Error('Erreur lors de la requête');
           }
-          
           return response.text();
       })
 
@@ -128,9 +127,10 @@ io.on("connection", (socket)=> {
 })
 
 app.get('/refresh', (req, res) => {
-  console.log(res)
-  res.redirect(req.get("referer"));
-  
+  res.redirect("http://localhost:3001");
+ 
+  console.log("dd")
+
 });
 
 app.get('/', (req, res) => {
