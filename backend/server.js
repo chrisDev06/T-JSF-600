@@ -100,20 +100,24 @@ io.on("connection", (socket)=> {
         }
       }
     }
+    
     else{
+     
       Msg = mongoose.model(`${room}s`, msgSchema)
       const message = new Msg({msg}) 
+
+      fetch('http://localhost:3001/refresh', { 
+        method: 'GET'
+      }).then(response => {
+          if (!response.ok) {
+              throw new Error('Erreur lors de la requête');
+          }
+          
+          return response.text();
+      })
+
       message.save().then(()=> {
       })
-      var livereload = require("livereload");
-      var connectLiveReload = require("connect-livereload");
-
-      const liveReloadServer = livereload.createServer();
-      liveReloadServer.server.once("connection", () => {
-      liveReloadServer.refresh("/");
-
-      app.use(connectLiveReload());
-    });
       io.to(`${room}s`).emit("message", msg)
     }
   })
@@ -122,6 +126,12 @@ io.on("connection", (socket)=> {
     const user = new Usr({usr})    
   }) 
 })
+
+app.get('/refresh', (req, res) => {
+  console.log(res)
+  res.redirect(req.get("referer"));
+  
+});
 
 app.get('/', (req, res) => {
   res.sendFile(join(__dirname, '../frontend/public/index.html'));
