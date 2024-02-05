@@ -1,25 +1,42 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Avatar from "../../assets/avatar.png"
 import Input from '../../components/input'
 
 
 const Dashboard = () => {
-    const contacts = [
-        {
-            name: "Chriis",
-            status: 'Available',
-            img: Avatar
-        },
-        {
-            name: "Trk tu t'appel Maxime",
-            status: 'Available',
-            img: Avatar
-        }, {
-            name: "ruru qui est là",
-            status: 'Available',
-            img: Avatar
+
+    const [user, setUser] = useState(JSON.parse(localStorage.getItem('user:detail')))
+    const [conversations, setConversations] = useState([])
+    const [messages, setMessages] = useState({})
+
+    useEffect(() => {
+        const loggedInUser = JSON.parse(localStorage.getItem('user:detail'))
+        const fetchConversations = async () => {
+            const res = await fetch(`http://localhost:8000/api/conversations/${loggedInUser?.id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            const resData = await res.json()
+            setConversations(resData)
         }
-    ]
+        fetchConversations()
+    }, [])
+
+
+    const fetchMessages = async (conversationId, user) => {
+        const res = await fetch(`http://localhost:8000/api/message/${conversationId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            // body: JSON.stringify({ conversationId, senderId: user?.id, message: 'Hello', receiverId: '' })
+        });
+        const resData = await res.json()
+        console.log('resdata => ', resData);
+        setMessages({ messages: resData, receiver: user })
+    }
 
     return (
         <div className='w-screen flex'>
@@ -29,7 +46,7 @@ const Dashboard = () => {
                         <img src={Avatar} width={75} height={75} />
                     </div>
                     <div className='ml-8'>
-                        <h3 className='text-2xl'>ChriisLeBG</h3>
+                        <h3 className='text-2xl'>{user?.fullName}</h3>
                         <p className='text-lg font-light'>Mon compte</p>
                     </div>
                 </div>
@@ -38,21 +55,23 @@ const Dashboard = () => {
                     <div className='text-primary text-lg'>Messages</div>
                     <div>
                         {
-                            contacts.map(({ name, status, img }) => {
-                                return (
-                                    <div className='flex items-center py-8 border-b border-b-gray-300'>
-                                        <div className='cursor-pointer flex items-center'>
-                                            <div>
-                                                <img src={img} width={60} height={60} />
-                                            </div>
-                                            <div className='ml-6'>
-                                                <h3 className='text-lg font-semibold'>{name}</h3>
-                                                <p className='text-sm font-light text-gray-600'>{status}</p>
+                            conversations.length > 0 ?
+                                conversations.map(({ conversationId, user }) => {
+                                    return (
+                                        <div className='flex items-center py-8 border-b border-b-gray-300'>
+                                            <div className='cursor-pointer flex items-center' onClick={() =>
+                                                fetchMessages(conversationId, user)}>
+                                                <div>
+                                                    <img src={Avatar} width={60} height={60} />
+                                                </div>
+                                                <div className='ml-6'>
+                                                    <h3 className='text-lg font-semibold'>{user?.fullName}</h3>
+                                                    <p className='text-sm font-light text-gray-600'>{user?.email}</p>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                )
-                            })
+                                    )
+                                }) : <div className='text-sm text-lg font-semibold my-auto'>Pas de conversation</div>
                         }
                     </div>
                 </div>
@@ -68,32 +87,18 @@ const Dashboard = () => {
                         <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-phone-outgoing" width="24" height="24" viewBox="0 0 24 24" strokeWidth="1.5" stroke="black" fill="none" strokeLinecap="round" strokeLinejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2" /><path d="M15 9l5 -5" /><path d="M16 4l4 0l0 4" /></svg>
                     </div>
                 </div>
-                <div className='h-[75%] w-full overflow-scroll border-b shadow-sm'>
+                <div className='h-[75%] w-full overflow-scroll shadow-sm'>
                     <div className='p-14'>
-                        <div className='max-w-[47%] bg-[#e1edff] rounded-b-xl rounded-tr-xl p-4 mb-6'>
-                            Le Lorem Ipsum est un faux texte utilisé pour la composition et la mise en page avant impression, qui vient du texte latin de Cicéron.
-                        </div>
-                        <div className='max-w-[47%] bg-primary rounded-b-xl rounded-tl-xl ml-auto p-4 text-white mb-6'>
-                            Le Lorem Ipsum est un faux texte utilisé pour la composition et la mise en page avant impression, qui vient du texte latin de Cicéron.
-                        </div>
-                        <div className='max-w-[47%] bg-[#e1edff] rounded-b-xl rounded-tr-xl p-4 mb-6'>
-                            Le Lorem Ipsum est un faux texte utilisé pour la composition et la mise en page avant impression, qui vient du texte latin de Cicéron.
-                        </div>
-                        <div className='max-w-[47%] bg-primary rounded-b-xl rounded-tl-xl ml-auto p-4 text-white mb-6'>
-                            Le Lorem Ipsum est un faux texte utilisé pour la composition et la mise en page avant impression, qui vient du texte latin de Cicéron.
-                        </div>
-                        <div className='max-w-[47%] bg-[#e1edff] rounded-b-xl rounded-tr-xl p-4 mb-6'>
-                            Le Lorem Ipsum est un faux texte utilisé pour la composition et la mise en page avant impression, qui vient du texte latin de Cicéron.
-                        </div>
-                        <div className='max-w-[47%] bg-primary rounded-b-xl rounded-tl-xl ml-auto p-4 text-white mb-6'>
-                            Le Lorem Ipsum est un faux texte utilisé pour la composition et la mise en page avant impression, qui vient du texte latin de Cicéron.
-                        </div>
-                        <div className='max-w-[47%] bg-[#e1edff] rounded-b-xl rounded-tr-xl p-4 mb-6'>
-                            Le Lorem Ipsum est un faux texte utilisé pour la composition et la mise en page avant impression, qui vient du texte latin de Cicéron.
-                        </div>
-                        <div className='max-w-[47%] bg-primary rounded-b-xl rounded-tl-xl ml-auto p-4 text-white mb-6'>
-                            Le Lorem Ipsum est un faux texte utilisé pour la composition et la mise en page avant impression, qui vient du texte latin de Cicéron.
-                        </div>
+                        {
+                            messages.length > 0 ?
+                                messages.map(({ message, user: { id } = {} }) => {
+                                    return (
+                                        <div className={`max-w-[40%] rounded-b-xl p-4  mb-6 ${id === user?.id ? 'text-white bg-primary rounded-tl-xl ml-auto' : ' bg-[#e1edff] rounded-tr-xl'} `}>
+                                            {message}
+                                        </div>
+                                    )
+                                }) : <div className='text-center text-lg font-semibold mt-24'>Pas de message</div>
+                        }
                     </div>
                 </div>
                 <div className='p-14 w-full flex items-center'>

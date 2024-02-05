@@ -1,6 +1,7 @@
 const express = require('express');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const cors = require('cors');
 
 // connect db
 require('./db/connection');
@@ -12,6 +13,7 @@ const Messages = require('./models/Messages');
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cors());
 
 const PORT = process.env.PORT || 8000;
 
@@ -78,15 +80,16 @@ app.post('/api/login', async (req, res) => {
           const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || 'THIS_IS_A_JWT_SECRET_KEY';
 
           jwt.sign(payload, JWT_SECRET_KEY, { expiresIn: 84600 }, async (err, token) => {
-            if (err) {
-              return res.status(500).send('Error while creating JWT token');
-            }
-
             await Users.updateOne({ _id: user._id }, {
               $set: { token }
-            });
+            })
 
-            return res.status(200).json({ user: { email: user.email, fullName: user.fullName }, token: user.token });
+            user.save();
+
+            return res.status(200).json({
+              user: { id: user._id, email: user.email, fullName: user.fullName },
+              token: token
+            });
           });
         }
       }
@@ -99,8 +102,6 @@ app.post('/api/login', async (req, res) => {
 
 app.post('/api/conversation', async (req, res) => {
   try {
-    console.log(req.body); // Log the entire request body
-
     const { senderId, receiverId } = req.body;
     const newConversation = new Conversations({ members: [senderId, receiverId] });
     await newConversation.save();
@@ -112,7 +113,7 @@ app.post('/api/conversation', async (req, res) => {
   }
 });
 
-app.get('/api/conversation/:userId', async (req, res) => {
+app.get('/api/conversations/:userId', async (req, res) => {
   try {
     const userId = req.params.userId;
     const conversations = await Conversations.find({ members: { $in: [userId] } });
@@ -164,7 +165,7 @@ app.get('/api/message/:conversationId', async (req, res) => {
     const messages = await Messages.find({ conversationId });
     const messageUserData = await Promise.all(messages.map(async (message) => {
       const user = await Users.findById(message.senderId);
-      return { users: { email: user.email, fullName: user.fullName }, message: message.message };
+      return { users: { id: user._id, email: user.email, fullName: user.fullName }, message: message.message };
     }));
 
     res.status(200).json(messageUserData);

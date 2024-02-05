@@ -7,12 +7,12 @@ import {
 import Form from "./modules/Form";
 import Dashboard from "./modules/Dashboard";
 
-const ProtectedRoute = ({ children }) => {
-  const isLoggedIn = localStorage.getItem('user:token') !== null || true;
+const ProtectedRoute = ({ children, auth = false }) => {
+  const isLoggedIn = localStorage.getItem('user:token') !== null || false;
 
-  if (!isLoggedIn) {
+  if (!isLoggedIn && auth) {
     return <Navigate to="/users/sign_in" />;
-  } else if (isLoggedIn && ['users/sign_in', 'users/sign_up'].includes(window.location.pathname)) {
+  } else if (isLoggedIn && ['/users/sign_in', '/users/sign_up'].includes(window.location.pathname)) {
     return <Navigate to={'/'} />
   }
 
@@ -26,7 +26,7 @@ function App() {
         <Route
           path="/"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute auth={true}>
               <Dashboard />
             </ProtectedRoute>
           }
