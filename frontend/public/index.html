@@ -63,7 +63,7 @@
           chat.value = "";
         }
         if(user.value){
-          socket.emit("user", user.value)
+          socket.emit("createUser", user.value)
           user.value = "";
         }
         if (input.value) {

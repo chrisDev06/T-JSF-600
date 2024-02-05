@@ -86,7 +86,7 @@ io.on("connection", (socket)=> {
     })
   })
 
-  socket.on("user", (usr) => {
+  socket.on("createUser", (usr) => {
     const user = new Usr({usr})    
   }) 
 })
