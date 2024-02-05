@@ -73,49 +73,49 @@ io.on("connection", (socket)=> {
       const connect = client.db("test");
       const collection = connect.collection(`${del}s`);
       collection.drop(); 
-      console.log(room) 
       
     })
   })
 
   socket.on("chatmessage", (msg) => {
-    let tmp= msg.split("")
-    if(tmp[0]== "/"){
-      switch (msg){
-        case "/nick" :
-          console.log(msg)
-          break;
-          case "/list" :
-            console.log(msg)
-            break;
-            case "/create" :
-              console.log(msg)
-              break;
-              case "/delete" :
-                console.log(msg)
-                break;
-                case "/join" :
-                  console.log(msg)
-                  break;
-                  case "/quit" :
-                    console.log(msg)
-                    break;
-                    case "/users" :
-                      console.log(msg)
-                      break;
-                      case "/msg" :
-                        console.log(msg)
-                        break;
+
+    let tmp= msg.split(" ")
+    let tmp2 = msg.split("")
+    const commands = {
+      "/nick" : () => {console.log("/nick")},
+      "/list" : () => {console.log("/list")},
+      "/create" : () => {console.log("/create")},
+      "/delete" : () => {console.log("/delete")},
+      "/join" : () => {console.log("/join")},
+      "/quit" : () => {console.log("/quit")},
+      "/users" : () => {console.log("/users")},
+      "/msg" : () => {console.log("/msg")}
+    }
+
+    if(tmp2[0]== "/"){
+      for (let key in commands){
+        if(tmp[0] === key){
+          console.log(commands[key])
+          commands[key];
+        }
       }
     }
     else{
       Msg = mongoose.model(`${room}s`, msgSchema)
       const message = new Msg({msg}) 
       message.save().then(()=> {
-        io.to(room).emit("message", msg)
       })
+      var livereload = require("livereload");
+      var connectLiveReload = require("connect-livereload");
+
+      const liveReloadServer = livereload.createServer();
+      liveReloadServer.server.once("connection", () => {
+      liveReloadServer.refresh("/");
+
+      app.use(connectLiveReload());
+    });
+      io.to(`${room}s`).emit("message", msg)
     }
-    
   })
 
   socket.on("createUser", (usr) => {

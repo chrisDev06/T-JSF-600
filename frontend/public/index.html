@@ -37,7 +37,8 @@
       <button id="deleteButton">Delete</button>
     </form>
 
-    
+    <audio autoplay="false" id="beep" src="../../backend/msn.mp3">
+    </audio>
 
     <script defer>
       const socket = io(); 
@@ -90,10 +91,15 @@
       });
       
       socket.on("message", (data) => {
+        console.log("fff")
         let p = document.createElement("p")
         p.innerText = data ;
         document.querySelector("body").appendChild(p)
         // appendMessages(data)
+        var sound = document.getElementById("beep");
+            sound.play();
+            
+            console.log("test")
         })
       
       socket.on("allMessages", (data) => {     // affichage des messages dans le chat
