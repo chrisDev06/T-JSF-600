@@ -90,8 +90,8 @@ const Dashboard = () => {
                 <div className='h-[75%] w-full overflow-scroll shadow-sm'>
                     <div className='p-14'>
                         {
-                            messages.length > 0 ?
-                                messages.map(({ message, user: { id } = {} }) => {
+                            messages?.messages?.length > 0 ?
+                                messages.messages.map(({ message, user: { id } = {} }) => {
                                     return (
                                         <div className={`max-w-[40%] rounded-b-xl p-4  mb-6 ${id === user?.id ? 'text-white bg-primary rounded-tl-xl ml-auto' : ' bg-[#e1edff] rounded-tr-xl'} `}>
                                             {message}
