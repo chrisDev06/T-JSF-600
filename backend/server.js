@@ -4,7 +4,7 @@ let Usr = require('./models/user')
 const mongoDB = "mongodb+srv://maximeparisi:4nloXstxn8UHz1L7@cluster0.bbwhcld.mongodb.net/?retryWrites=true&w=majority";
 mongoose.connect(mongoDB).then(()=> {
   console.log(" db connected")
-} )
+})
 
 const MongoClient = require('mongodb').MongoClient
 
@@ -18,7 +18,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
   connectionStateRecovery: {}
 });
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 const { join } = require('node:path'); 
 
@@ -79,11 +79,43 @@ io.on("connection", (socket)=> {
   })
 
   socket.on("chatmessage", (msg) => {
-    Msg = mongoose.model(`${room}s`, msgSchema)
-    const message = new Msg({msg}) 
-    message.save().then(()=> {
-      io.to(room).emit("message", msg)
-    })
+    let tmp= msg.split("")
+    if(tmp[0]== "/"){
+      switch (msg){
+        case "/nick" :
+          console.log(msg)
+          break;
+          case "/list" :
+            console.log(msg)
+            break;
+            case "/create" :
+              console.log(msg)
+              break;
+              case "/delete" :
+                console.log(msg)
+                break;
+                case "/join" :
+                  console.log(msg)
+                  break;
+                  case "/quit" :
+                    console.log(msg)
+                    break;
+                    case "/users" :
+                      console.log(msg)
+                      break;
+                      case "/msg" :
+                        console.log(msg)
+                        break;
+      }
+    }
+    else{
+      Msg = mongoose.model(`${room}s`, msgSchema)
+      const message = new Msg({msg}) 
+      message.save().then(()=> {
+        io.to(room).emit("message", msg)
+      })
+    }
+    
   })
 
   socket.on("createUser", (usr) => {
