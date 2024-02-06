@@ -45,42 +45,55 @@ let Msg = mongoose.model(`${room}`, msgSchema);
 
 io.on("connection", (socket)=> {
 
+  function create_chat(msg){
+    room = msg
+    Msg = mongoose.model("channels", msgSchema)
+      console.log(Msg)
+      let roomList = new Msg({msg}) 
+      roomList.save().then(()=> {
+      })
+    Msg = mongoose.model(`${room}s`, msgSchema)
+    Msg.find().then(result => {
+      socket.emit("allMessages", result)  
+    })
+    socket.join(room)
+    
+  }
+
+  function delete_chat(str){
+    room = "generale"
+    MongoClient.connect(mongoDB).then((client) => {
+
+      let connect = client.db("test");
+      let collection = connect.collection(`${str}s`);
+      collection.drop(); 
+      
+    })
+  }
+
   Msg.find().then(result => {
     socket.emit("allMessages", result)  
   })
   
   socket.on("selectChat", (cht) => {
-    room = cht
-    Msg = mongoose.model(`${room}s`, msgSchema)
-    Msg.find().then(result => {
-      socket.emit("allMessages", result)  
-    })
-    socket.join(cht) 
+    create_chat(cht) 
+  })
+
+  socket.on("deleteChat", (del) => {
+    delete_chat(del)
   })
 
   socket.on("updateChat", (up) => {
     room = up
     MongoClient.connect(mongoDB).then((client) => {
 
-      const connect = client.db("test");
-      const collection = connect.collection(`${room}s`);
+      let connect = client.db("test");
+      let collection = connect.collection(`${room}s`);
       collection.rename(`${up}s`); 
       console.log(room) 
       
     })
   })
-
-  socket.on("deleteChat", (del) => {
-    room = "generale"
-    MongoClient.connect(mongoDB).then((client) => {
-
-      const connect = client.db("test");
-      const collection = connect.collection(`${del}s`);
-      collection.drop(); 
-      
-    })
-  })
-
 
 
 
@@ -110,7 +123,10 @@ io.on("connection", (socket)=> {
     else{
      
       Msg = mongoose.model(`${room}s`, msgSchema)
-      const message = new Msg({msg}) 
+
+      let message = new Msg({msg}) 
+      message.save().then(()=> {
+      })
 
       // fetch('http://localhost:3001/refresh', { 
       //   method: 'GET'
@@ -123,8 +139,7 @@ io.on("connection", (socket)=> {
       //     return response.text();
       // })
 
-      message.save().then(()=> {
-      })
+      
       io.to(`${room}s`).emit("message", msg)
     }
 
@@ -134,21 +149,20 @@ io.on("connection", (socket)=> {
 
   })
   socket.on("/list", (msg) => {
-
+    if(msg == "")
+    Msg = mongoose.model(`channels`, msgSchema)
+    Msg.find().then(result => {
+      socket.emit("allMessages", result)
+    })
   })
   socket.on("/create", (msg) => {
-    room = cht
-    Msg = mongoose.model(`${room}s`, msgSchema)
-    Msg.find().then(result => {
-      socket.emit("allMessages", result)  
-    })
-    socket.join(cht) 
+    create_chat(msg)
   })
   socket.on("/delete", (msg) => {
-
+    delete_chat(msg)
   })
   socket.on("/join", (msg) => {
-
+    create_chat(msg)
   })
   socket.on("/quit", (msg) => {
 
