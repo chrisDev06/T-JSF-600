@@ -23,6 +23,8 @@ const PORT = process.env.PORT || 3001;
 const { join } = require('node:path'); 
 
 
+
+
 io.on('connection', (socket) => {
   socket.on('helloServeur', (arg) => {        // connection client <--> serveur
     console.log(arg);
@@ -33,6 +35,8 @@ io.on('connection', (socket) => {
     console.log("user disconnected")
   })
 });
+
+
 
 let room = "generale"
 
@@ -77,56 +81,90 @@ io.on("connection", (socket)=> {
     })
   })
 
+
+
+
   socket.on("chatmessage", (msg) => {
 
     let tmp= msg.split(" ")
     let tmp2 = msg.split("")
+
     const commands = {
-      "/nick" : () => {console.log("/nick")},
-      "/list" : () => {console.log("/list")},
-      "/create" : () => {console.log("/create")},
-      "/delete" : () => {console.log("/delete")},
-      "/join" : () => {console.log("/join")},
-      "/quit" : () => {console.log("/quit")},
-      "/users" : () => {console.log("/users")},
-      "/msg" : () => {console.log("/msg")}
+      "/nick" : "nick",
+      "/list" : "list",
+      "/create" : "create",
+      "/delete" : "delete",
+      "/join" : "join",
+      "/quit" : "quit",
+      "/users" :"users",
+      "/msg" : "msg"
     }
 
     if(tmp2[0]== "/"){
       for (let key in commands){
         if(tmp[0] === key){
-          console.log(commands[key])
-          commands[key];
+          socket.emit(commands, tmp[0]) 
         }
       }
     }
-    
     else{
      
       Msg = mongoose.model(`${room}s`, msgSchema)
       const message = new Msg({msg}) 
 
-      fetch('http://localhost:3001/refresh', { 
-        method: 'GET'
-      }).then(response => {
-          // console.log(response)
-          if (!response.ok) {
-              throw new Error('Erreur lors de la requête');
-          }
+      // fetch('http://localhost:3001/refresh', { 
+      //   method: 'GET'
+      // }).then(response => {
+      //     // console.log(response)
+      //     if (!response.ok) {
+      //         throw new Error('Erreur lors de la requête');
+      //     }
 
-          return response.text();
-      })
+      //     return response.text();
+      // })
 
       message.save().then(()=> {
       })
       io.to(`${room}s`).emit("message", msg)
     }
+
   })
 
-  socket.on("createUser", (usr) => {
-    const user = new Usr({usr})    
-  }) 
+  socket.on("/nick", (msg) => {
+
+  })
+  socket.on("/list", (msg) => {
+
+  })
+  socket.on("/create", (msg) => {
+    room = cht
+    Msg = mongoose.model(`${room}s`, msgSchema)
+    Msg.find().then(result => {
+      socket.emit("allMessages", result)  
+    })
+    socket.join(cht) 
+  })
+  socket.on("/delete", (msg) => {
+
+  })
+  socket.on("/join", (msg) => {
+
+  })
+  socket.on("/quit", (msg) => {
+
+  })
+  socket.on("/users", (msg) => {
+
+  })
+  socket.on("/msg", (msg) => {
+  
+  })
+
+//   socket.on("createUser", (usr) => {
+//     const user = new Usr({usr})    
+//   }) 
 })
+
 
 app.get('/refresh', function(req, res) {
   console.log("dd")
