@@ -52,7 +52,7 @@ io.on("connection", (socket)=> {
       roomList.save().then(()=> {
       })
     Msg = mongoose.model(`${room}s`, msgSchema)
-    Msg.find().then(result => {
+    Msg.find({room}).then(result => {
       socket.emit("allMessages", result)  
     })
     socket.join(room)
@@ -164,7 +164,7 @@ io.on("connection", (socket)=> {
     create_chat(msg)
   })
   socket.on("/quit", (msg) => {
-
+    create_chat("generale")
   })
   socket.on("/users", (msg) => {
 
