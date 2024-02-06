@@ -48,7 +48,6 @@ io.on("connection", (socket)=> {
   function create_chat(msg){
     room = msg
     Msg = mongoose.model("channels", msgSchema)
-      console.log(Msg)
       let roomList = new Msg({msg}) 
       roomList.save().then(()=> {
       })
