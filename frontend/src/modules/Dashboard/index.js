@@ -5,10 +5,12 @@ import Input from '../../components/input'
 
 const Dashboard = () => {
 
-    const [user, setUser] = useState(JSON.parse(localStorage.getItem('user:detail')))
+    const [user, setUser] = useState(JSON.parse(localStorage.getItem('user:detail')) || {});
     const [conversations, setConversations] = useState([])
     const [messages, setMessages] = useState({})
     const [message, setMessage] = useState('')
+    const [users, setUsers] = useState([])
+    console.log('users => ', users)
 
     useEffect(() => {
         const loggedInUser = JSON.parse(localStorage.getItem('user:detail'))
@@ -25,6 +27,19 @@ const Dashboard = () => {
         fetchConversations()
     }, [])
 
+    useEffect(() => {
+        const fetchUsers = async () => {
+            const res = await fetch(`http://localhost:8000/api/users`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const resData = await res.json()
+            setUsers(resData)
+        }
+        fetchUsers()
+    }, [users])
 
     const fetchMessages = async (conversationId, user) => {
         const res = await fetch(`http://localhost:8000/api/message/${conversationId}`, {
@@ -114,9 +129,9 @@ const Dashboard = () => {
                     <div className='p-14'>
                         {messages.messages && messages.messages.length > 0 ? (
                             messages.messages.map((messageData, index) => (
-                                <div key={index} className={messageData.users.id === user?.id ? 'text-right max-w-[45%] bg-primary rounded-b-xl rounded-tl-xl ml-auto p-4 text-white mb-6' : 'max-w-[45%] bg-[#e1edff] rounded-b-xl rounded-tr-xl p-4 mb-6 text-left'}>
+                                <div key={index} className={messageData.user.id === user?.id ? 'text-right max-w-[45%] bg-primary rounded-b-xl rounded-tl-xl ml-auto p-4 text-white mb-6' : 'max-w-[45%] bg-[#e1edff] rounded-b-xl rounded-tr-xl p-4 mb-6 text-left'}>
                                     <p>{messageData.message}</p>
-                                    <p className='text-xs font-light'>{messageData.users.fullName}</p>
+                                    <p className='text-xs font-light'>{messageData.user.fullName}</p>
                                 </div>
                             ))
                         ) : (
@@ -143,8 +158,30 @@ const Dashboard = () => {
                     </div>
                 }
             </div>
-            <div className='w-[25%] border h-screen'>
-
+            <div className='w-[25%] border h-screen px-8 py-16'>
+                <div className='text-primary text-lg'>People</div>
+                <div>
+                    {
+                        users.length > 0 ?
+                            users.map(({ userId, users }) => {
+                                console.log("user --> : ", users)
+                                return (
+                                    <div className='flex items-center py-8 border-b border-b-gray-300' key={userId}>
+                                        <div className='cursor-pointer flex items-center' onClick={() =>
+                                            fetchMessages('new', users)}>
+                                            <div>
+                                                <img src={Avatar} width={60} height={60} />
+                                            </div>
+                                            <div className='ml-6'>
+                                                <h3 className='text-lg font-semibold'>{users?.fullName}</h3>
+                                                <p className='text-sm font-light text-gray-600'>{users?.email}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                            }) : <div className='text-sm text-lg font-semibold my-auto'>Pas de conversation</div>
+                    }
+                </div>
             </div>
         </div>
     )
