@@ -174,16 +174,24 @@ io.on("connection", (socket)=> {
     }
     
   })
+  let userList = io.sockets.adapter.rooms.get(room)
   socket.on("/users", (msg) => {
-    
+    for(let clientId of userList){
+      console.log(id)
+    }
   })
   socket.on("/msg", (msg) => {
   
   })
 
-//   socket.on("createUser", (usr) => {
-//     const user = new Usr({usr})    
-//   }) 
+  socket.on("createUser", (msg) => {
+    console.log(msg)
+    Msg = mongoose.model("channels", msgSchema)
+    let roomList = new Msg({msg}) 
+    roomList.save().then(()=> {
+    }) 
+      Msg = mongoose.model(`${room}s`, msgSchema)
+  }) 
 })
 
 

@@ -58,15 +58,15 @@
 
       form.addEventListener('submit', (e) => {
         e.preventDefault();
-        if(chat.value){
+        if(chat.value != ""){
           socket.emit("selectChat", chat.value)
           chat.value = "";
         }
-        if(user.value){
+        if(user.value != ""){
           socket.emit("createUser", user.value)
           user.value = "";
         }
-        if (input.value) {
+        if (input.value != "") {
           socket.emit('chatmessage', input.value);
           input.value = '';
         }
