@@ -146,10 +146,12 @@ io.on("connection", (socket)=> {
   socket.on("/nick", (msg) => {
 
   })
+  let channelList = "channels";
   socket.on("/list", (msg) => {
     if(msg == "")
+    
     Msg = mongoose.model(`channels`, msgSchema)
-    Msg.find().then(result => {
+    Msg.find({channelList}).then(result => {
       socket.emit("allMessages", result)
     })
   })
@@ -160,13 +162,20 @@ io.on("connection", (socket)=> {
     delete_chat(msg)
   })
   socket.on("/join", (msg) => {
-    create_chat(msg)
+    room = msg
+    socket.join(msg)
   })
   socket.on("/quit", (msg) => {
-    create_chat("generale")
+    if(msg == null){
+      socket.leave(room)
+    }
+    else{
+      socket.leave(msg)
+    }
+    
   })
   socket.on("/users", (msg) => {
-
+    
   })
   socket.on("/msg", (msg) => {
   
