@@ -83,13 +83,12 @@ io.on("connection", (socket)=> {
   })
 
   socket.on("updateChat", (up) => {
-    room = up
     MongoClient.connect(mongoDB).then((client) => {
 
       let connect = client.db("test");
       let collection = connect.collection(`${room}s`);
       collection.rename(`${up}s`); 
-      console.log(room) 
+      room = up
       
     })
   })
