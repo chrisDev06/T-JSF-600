@@ -36,6 +36,10 @@ let arrayRoom = ["generale"]
 let Msg = mongoose.model(`${room}`, msgSchema);
 
 
+io.on('connection', (socket)=>{
+  io.emit("userConnected", "a user connected")
+})
+
 io.on("connection", (socket)=> {
 
   function create_chat(msg){
@@ -64,10 +68,9 @@ io.on("connection", (socket)=> {
       
     })
   }
-
-  socket.emit("userConnected", "user connected")
+  
   socket.on("disconnect", ()=> {            //detection connection user
-    socket.emit("userDisconnected", "user disconnected")
+    io.emit("userDisconnected", "user disconnected")
     console.log("a user disconnected")
   })
 

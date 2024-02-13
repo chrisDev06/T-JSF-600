@@ -147,7 +147,6 @@
       })
 
       socket.on("userDisconnected", (msg)=> {
-        console.log("ttt")
         let p = document.createElement("p")
             p.innerText = msg
             document.querySelector("body").appendChild(p)
