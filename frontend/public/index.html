@@ -67,7 +67,32 @@
           user.value = "";
         }
         if (input.value != "") {
+          tmp2 = input.value.split("")
+          if(tmp2[0] == "/"){
+
+            let tmp= input.value.split(" ")
+
+            const commands = {
+              "/nick" : "nick",
+              "/list" : "list",
+              "/create" : "create",
+              "/delete" : "delete",
+              "/join" : "join",
+              "/quit" : "quit",
+              "/users" :"users",
+              "/msg" : "msg"
+            }
+
+          
+              for (let key in commands){
+                if(tmp[0] === key){
+                  socket.emit(key, tmp[1]) 
+                }
+              }
+          }else{
           socket.emit('chatmessage', input.value);
+          
+          }
           input.value = '';
         }
       }); 
@@ -101,7 +126,7 @@
             console.log("test")
         })
       
-      socket.on("allMessages", (data) => {    
+      socket.on("allMessages", (data) => {   
         if(data.length>0){
           data.forEach(message => {
             let p = document.createElement("p")
@@ -113,6 +138,28 @@
            
           });
         }
+      })
+
+      socket.on("listOfRooms", (data) => { 
+        if(data.length>0){
+          for(let i= 0; i<data.length; i++){
+            let p = document.createElement("p")
+            p.innerText = data[i]
+            document.querySelector("body").appendChild(p)
+          };
+        }
+      })
+
+      socket.on("userConnected", (msg)=> {
+        let p = document.createElement("p")
+            p.innerText = msg
+            document.querySelector("body").appendChild(p)
+      })
+
+      socket.on("userDisconnected", (msg)=> {
+        let p = document.createElement("p")
+            p.innerText = msg
+            document.querySelector("body").appendChild(p)
       })
       
 

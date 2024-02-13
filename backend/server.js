@@ -26,19 +26,20 @@ const { join } = require('node:path');
 
 
 io.on('connection', (socket) => {
-  socket.on('helloServeur', (arg) => {        // connection client <--> serveur
-    console.log(arg);
-  socket.emit('helloClient', 'connection serveur -> client');  
-  });
-  console.log("a user connected");
+  // socket.on('helloServeur', (arg) => {        // connection client <--> serveur
+  //   console.log(arg);
+  // socket.emit('helloClient', 'connection serveur -> client');  
+  // });
+  socket.emit("userConnected", "user connected")
   socket.on("disconnect", ()=> {            //detection connection user
-    console.log("user disconnected")
+    socket.emit("userDisconnected", "user disconnected")
   })
-});
+})
 
 
 
 let room = "generale"
+let arrayRoom = ["generale" ]
 
 let Msg = mongoose.model(`${room}`, msgSchema);
 
@@ -56,6 +57,8 @@ io.on("connection", (socket)=> {
       socket.emit("allMessages", result)  
     })
     socket.join(room)
+
+    arrayRoom.push(room)
     
   }
 
@@ -69,6 +72,7 @@ io.on("connection", (socket)=> {
       
     })
   }
+
 
   Msg.find().then(result => {
     socket.emit("allMessages", result)  
@@ -97,63 +101,24 @@ io.on("connection", (socket)=> {
 
   socket.on("chatmessage", (msg) => {
 
-    let tmp= msg.split(" ")
-    let tmp2 = msg.split("")
-
-    const commands = {
-      "/nick" : "nick",
-      "/list" : "list",
-      "/create" : "create",
-      "/delete" : "delete",
-      "/join" : "join",
-      "/quit" : "quit",
-      "/users" :"users",
-      "/msg" : "msg"
-    }
-
-    if(tmp2[0]== "/"){
-      for (let key in commands){
-        if(tmp[0] === key){
-          socket.emit(commands, tmp[0]) 
-        }
-      }
-    }
-    else{
-     
       Msg = mongoose.model(`${room}s`, msgSchema)
 
       let message = new Msg({msg}) 
       message.save().then(()=> {
       })
-
-      // fetch('http://localhost:3001/refresh', { 
-      //   method: 'GET'
-      // }).then(response => {
-      //     // console.log(response)
-      //     if (!response.ok) {
-      //         throw new Error('Erreur lors de la requête');
-      //     }
-
-      //     return response.text();
-      // })
-
       
       io.to(`${room}s`).emit("message", msg)
-    }
 
   })
 
   socket.on("/nick", (msg) => {
 
   })
-  let channelList = "channels";
+ 
   socket.on("/list", (msg) => {
-    if(msg == "")
-    
-    Msg = mongoose.model(`channels`, msgSchema)
-    Msg.find({channelList}).then(result => {
-      socket.emit("allMessages", result)
-    })
+    if(msg != ""){
+      socket.emit("listOfRooms", arrayRoom)
+    }
   })
   socket.on("/create", (msg) => {
     create_chat(msg)
