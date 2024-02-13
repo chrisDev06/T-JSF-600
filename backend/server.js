@@ -158,10 +158,10 @@ io.on("connection", (socket)=> {
 })
 
 
-app.get('/refresh', function(req, res) {
-  console.log("dd")
-  return res.redirect("back");
-});
+// app.get('/refresh', function(req, res) {
+//   console.log("dd")
+//   return res.redirect("back");
+// });
 
 app.get('/', (req, res) => {
   res.sendFile(join(__dirname, '../frontend/public/index.html'));
