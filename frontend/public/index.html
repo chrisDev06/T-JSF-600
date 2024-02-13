@@ -10,22 +10,92 @@
       content="Web site created using create-react-app"
     />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
     <title>MSN2</title>
     <script src="/socket.io/socket.io.js"></script>
   </head>
   <body>
+    <style>
+      body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.chat-container {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 20%;
+    background-color: #f0f0f0;
+}
+
+.sidebar-header {
+    padding: 15px;
+    font-weight: bold;
+}
+
+.channels {
+    padding: 10px;
+}
+
+.channel {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.channel.active {
+    background-color: #ccc;
+}
+
+.conversation {
+    flex: 1;
+    padding: 20px;
+    border-left: 1px solid #ccc;
+}
+
+.chat-header {
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.messages {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.input-box {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.input-boxInput {
+    max-width: 1000px;
+    height: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.input-boxButton {
+    margin: 10px;
+    padding: 8px 15px;
+    background-color: #0078D4;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+}
+    </style>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
 
 
     <p id="p"></p>
 
-    <form id="form">
-      <input type="text" id="chat">
+    <!-- <form id="form">
+      <input type="text" id="chat" >
         <label for="chat"></label> 
       <input type="text" id="user">
         <label for="user"></label>
@@ -35,37 +105,93 @@
       <button id="button">Disconnect</button>
       <button id="updateButton">Update</button>
       <button id="deleteButton">Delete</button>
+    </form> -->
+
+    <form id="formUser">
+        <input type="text" id="user" class="input-boxInput">
+        <label for="user"></label>
+      <input type="submit" class="input-boxButton">
+      <button id="button" class="input-boxButton">Disconnect</button>
     </form>
 
+    <div class="container">
+      <div class="chat-container">
+        <div class="sidebar">
+          <div class="sidebar-header">
+            Teams
+          </div>
+          <div class="channels">
+            <form id="formChat">
+              <input type="text" id="chat" class="input-boxInput">
+                <label for="chat"></label> 
+              <input type="submit" class="input-boxButton">
+              <button id="updateButton" class="input-boxButton">Update</button>
+              <button id="deleteButton" class="input-boxButton">Delete</button>
+            </form>
+          </div>
+          <div id="sideScreen"></div>
+        </div>
+        <div class="conversation">
+          <div class="chat-header" id="roomName">
+            <p id="fieldName"></p>
+          </div>
+          <div class="messages">
+          </div>
+          <div class="input-box">
+            <form id="formMessage">
+              <input type="text" id="input" class="input-boxInput">
+                <label for="input"></label>
+              <input type="submit" class="input-boxButton">
+              <div id="mainScreen">
+                
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
     <audio autoplay="false" id="beep" src="../../backend/msn.mp3">
     </audio>
 
     <script defer>
       const socket = io(); 
 
-      const welcomeUser = document.getElementById('p');  //affichage user
-      socket.on("newuser", (data) => {
-          welcomeUser.innerText = data
-          document.querySelector("body").appendChild(welcomeUser)
-      })
+      // const welcomeUser = document.getElementById('p');  //affichage user
+      // socket.on("newuser", (data) => {
+      //     welcomeUser.innerText = data
+      //     document.querySelector("body").appendChild(welcomeUser)
+      // })
 
-      const chat = document.getElementById('chat');
-      const form = document.getElementById('form');
+      const formUser = document.getElementById('formUser');
+      const formChat = document.getElementById("formChat")
+      const formMessage = document.getElementById("formMessage")
+      
       const input = document.getElementById('input');
+      const chat = document.getElementById('chat');
       const user = document.getElementById('user');
+
       const updateButton = document.getElementById("updateButton")
       const deleteButton = document.getElementById("deleteButton")
 
-      form.addEventListener('submit', (e) => {
+      let roomName = document.getElementById("roomName")
+      let fieldName = document.getElementById("fieldName")
+
+     
+      formChat.addEventListener('submit', (e) => {
         e.preventDefault();
         if(chat.value != ""){
           socket.emit("selectChat", chat.value)
-          chat.value = "";
+          chat.value = ""
         }
+      })
+      formUser.addEventListener('submit', (e) => {
         if(user.value != ""){
           socket.emit("createUser", user.value)
           user.value = "";
         }
+      })
+      formMessage.addEventListener('submit', (e) => {
         if (input.value != "") {
           tmp2 = input.value.split("")
           if(tmp2[0] == "/"){
@@ -107,25 +233,31 @@
         chat.value= ''
       })
 
+
       socket.emit('helloServeur', 'connection client -> serveur');  // dialogue serveur-client
       socket.on('helloClient', (arg) => {
       });
+
+      
+      socket.on("roomName", (name)=> {
+        
+          fieldName.innerText= name
+          document.querySelector(roomName).appendChild(fieldName)
+          
+      })
       
       socket.on("message", (data) => {
         let p = document.createElement("p")
         p.innerText = data ;
-        document.querySelector("body").appendChild(p)
-        // appendMessages(data)
-        var sound = document.getElementById("beep");
-            sound.play();
-        })
+        document.querySelector("#mainScreen").appendChild(p)
+      })
       
       socket.on("allMessages", (data) => {   
         if(data.length>0){
           data.forEach(message => {
             let p = document.createElement("p")
             p.innerText = message.msg ;
-            document.querySelector("body").appendChild(p)           
+            document.querySelector("#mainScreen").appendChild(p)           
           });
         }
       })
@@ -135,7 +267,7 @@
           for(let i= 0; i<data.length; i++){
             let p = document.createElement("p")
             p.innerText = data[i]
-            document.querySelector("body").appendChild(p)
+            document.querySelector("#mainScreen").appendChild(p)
           }
         }
       })
@@ -143,13 +275,13 @@
       socket.on("userConnected", (msg)=> {
         let p = document.createElement("p")
             p.innerText = msg
-            document.querySelector("body").appendChild(p)
+            document.querySelector("#sideScreen").appendChild(p)
       })
 
       socket.on("userDisconnected", (msg)=> {
         let p = document.createElement("p")
             p.innerText = msg
-            document.querySelector("body").appendChild(p)
+            document.querySelector("#sideScreen").appendChild(p)
            
       })
       

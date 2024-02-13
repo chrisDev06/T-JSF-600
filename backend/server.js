@@ -30,13 +30,14 @@ io.on('connection', (socket) => {
   // });
 })
 
-let room = "generale"
-let arrayRoom = ["generale"]
+let room = "general"
+let arrayRoom = ["general"]
+
 
 let Msg = mongoose.model(`${room}`, msgSchema);
 
 
-io.on('connection', (socket)=>{
+io.on('connection', ()=>{
   io.emit("userConnected", "a user connected")
 })
 
@@ -52,19 +53,28 @@ io.on("connection", (socket)=> {
     Msg.find({room}).then(result => {
       socket.emit("allMessages", result)  
     })
-    socket.join(room)
 
     arrayRoom.push(room)
+    socket.emit("roomName", arrayRoom[arrayRoom.length-1])
+    console.log(arrayRoom[arrayRoom.length-1])
+
+    socket.join(room)
     
   }
 
   function delete_chat(str){
-    room = "generale"
+    room = "general"
     MongoClient.connect(mongoDB).then((client) => {
 
       let connect = client.db("test");
       let collection = connect.collection(`${str}s`);
       collection.drop(); 
+      for( i in arrayRoom){
+        if(str == arrayRoom[i]){
+          arrayRoom.shift(i)
+        }
+      }
+      socket.emit("roomName", "general")
       
     })
   }
@@ -73,6 +83,8 @@ io.on("connection", (socket)=> {
     io.emit("userDisconnected", "user disconnected")
     console.log("a user disconnected")
   })
+
+  socket.emit("roomName", arrayRoom[arrayRoom.length-1])
 
   Msg.find().then(result => {
     socket.emit("allMessages", result)  
@@ -92,7 +104,15 @@ io.on("connection", (socket)=> {
       let connect = client.db("test");
       let collection = connect.collection(`${room}s`);
       collection.rename(`${up}s`); 
+      for( i in arrayRoom){
+        if( room == arrayRoom[i]){
+          arrayRoom.shift(i)
+          arrayRoom.push(up)
+        }
+      }
+      socket.emit("roomName", arrayRoom[arrayRoom.length-1])
       room = up
+
       
     })
   })
@@ -127,10 +147,13 @@ io.on("connection", (socket)=> {
   socket.on("/join", (msg) => {
     room = msg
     socket.join(msg)
+    array.puch(msg)
+    socket.emit("roomName", arrayRoom[arrayRoom.length-1])
   })
   socket.on("/quit", (msg) => {
     if(msg == null){
       socket.leave(room)
+      socket.emit("roomName", arrayRoom[arrayRoom.length-1])
     }
     else{
       socket.leave(msg)
