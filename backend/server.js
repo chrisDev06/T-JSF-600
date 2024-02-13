@@ -23,23 +23,15 @@ const PORT = process.env.PORT || 3001;
 const { join } = require('node:path'); 
 
 
-
-
 io.on('connection', (socket) => {
   // socket.on('helloServeur', (arg) => {        // connection client <--> serveur
   //   console.log(arg);
   // socket.emit('helloClient', 'connection serveur -> client');  
   // });
-  socket.emit("userConnected", "user connected")
-  socket.on("disconnect", ()=> {            //detection connection user
-    socket.emit("userDisconnected", "user disconnected")
-  })
 })
 
-
-
 let room = "generale"
-let arrayRoom = ["generale" ]
+let arrayRoom = ["generale"]
 
 let Msg = mongoose.model(`${room}`, msgSchema);
 
@@ -73,6 +65,11 @@ io.on("connection", (socket)=> {
     })
   }
 
+  socket.emit("userConnected", "user connected")
+  socket.on("disconnect", ()=> {            //detection connection user
+    socket.emit("userDisconnected", "user disconnected")
+    console.log("a user disconnected")
+  })
 
   Msg.find().then(result => {
     socket.emit("allMessages", result)  
@@ -96,8 +93,6 @@ io.on("connection", (socket)=> {
       
     })
   })
-
-
 
   socket.on("chatmessage", (msg) => {
 

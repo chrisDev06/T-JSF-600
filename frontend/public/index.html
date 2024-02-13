@@ -98,32 +98,26 @@
       }); 
 
       updateButton.addEventListener("click", ()=> {
-            console.log("up")
             socket.emit("updateChat", chat.value)
             chat.value= ''
           })
       
       deleteButton.addEventListener("click", ()=> {
-        console.log("delete")
         socket.emit("deleteChat", chat.value)
         chat.value= ''
       })
 
       socket.emit('helloServeur', 'connection client -> serveur');  // dialogue serveur-client
       socket.on('helloClient', (arg) => {
-      console.log(arg); 
       });
       
       socket.on("message", (data) => {
-        console.log("fff")
         let p = document.createElement("p")
         p.innerText = data ;
         document.querySelector("body").appendChild(p)
         // appendMessages(data)
         var sound = document.getElementById("beep");
             sound.play();
-            
-            console.log("test")
         })
       
       socket.on("allMessages", (data) => {   
@@ -131,11 +125,7 @@
           data.forEach(message => {
             let p = document.createElement("p")
             p.innerText = message.msg ;
-            console.log(p)
-            document.querySelector("body").appendChild(p)
-
-            console.log(message.msg)
-           
+            document.querySelector("body").appendChild(p)           
           });
         }
       })
@@ -146,7 +136,7 @@
             let p = document.createElement("p")
             p.innerText = data[i]
             document.querySelector("body").appendChild(p)
-          };
+          }
         }
       })
 
@@ -157,9 +147,11 @@
       })
 
       socket.on("userDisconnected", (msg)=> {
+        console.log("ttt")
         let p = document.createElement("p")
             p.innerText = msg
             document.querySelector("body").appendChild(p)
+           
       })
       
 
